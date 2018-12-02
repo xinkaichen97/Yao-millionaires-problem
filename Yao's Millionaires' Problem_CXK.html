@@ -1,0 +1,327 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Yao's Millionaires' Problem</title>
+        <base href="http://www.google.cn/" target="_blank">
+        <style>
+
+                    body {
+                        background: url("https://images.unsplash.com/photo-1455459182396-ae46100617cb?auto=format&fit=crop&w=889&q=80") no-repeat center center fixed;
+                        background-size: cover;
+                        min-height: 100vh;
+                        box-sizing: border-box;
+                        margin: 0;
+                        padding-top: calc(30vh - 6em);
+                        padding-bottom: calc(30vh - 6em);
+                        font: 150%/1.6 Baskerville, Palatino, serif;
+                    }
+
+                    .description{
+                        position: relative;
+                        margin: 0 auto;
+                        padding: 6em;
+                        max-width: 30em;
+                        max-height: 300em;
+                        background: hsla(0,0%,100%,.60) border-box;
+                        overflow: hidden;
+                        border-radius: .5em;
+                        box-shadow: 0 0 0 1px hsla(0,0%,100%,.3) inset,
+                                    0 .5em 1em rgba(0, 0, 0, 0.6);
+                        text-shadow: 0 1px 1px hsla(0,0%,100%,.3);
+                    }
+
+                    .description::before{
+                        content: '';
+                        position: absolute;
+                        top: 0; right: 0; bottom: 0; left: 0;
+                        margin: -30px;
+                        z-index: -1;
+                        -webkit-filter: blur(20px);
+                        filter: blur(20px);
+                    }
+        </style>
+    </head>
+
+    <body>
+        <div class="description">
+            <h1 align="center" style="color: brown; font-family:微软雅黑">Guess who is richer? </h1><hr>
+            <div style="text-align:center" ><a href="https://en.wikipedia.org/wiki/Yao%27s_Millionaires%27_Problem" target="_blank" style="text-decoration:none;text-align:center;color:teal;font-size: 18px; font-family: Georgia"><u>Learn about Yao's Millionares' Problem</u></a></div>
+            <form>
+                <p style="text-align:center; color:maroon; font-size: 28px; font-family:Trebuchet MS">Now input your fortune(range 1-9)!</p>
+                <div style="text-align:center">
+                    <label><font size="4" face="Georgia">Alice:</font></label> <input type="password" id="Alice"><br>
+                    <label><font size="4" face="Georgia">Bob:</font></label>  <input type="password" id="Bob"><br>
+                    <input type="reset" name="button" id="button" value="Reset" style="text-align:center;width:50px;height:25px">
+                </div>
+                <p style="text-align:center; color:maroon; font-size: 20px; font-family: Georgia"><b>Are you ready?<br><br>
+                3<br><br>
+                2<br><br>
+                1<br><br></b></p>
+                <script type="text/javascript">
+                    function isprime(x) {
+                        if(x == 1)
+                            return false;
+                        var k = Math.pow(x, 0.5);
+                        for(j = 2; j < k + 1; j++){
+                            if(x % j == 0)
+                                return false;
+                        }
+                        return true;
+                    }
+
+                    function generate_public_keys(p , q){
+                        var numbers = new Array();
+                        var pr_keys = new Array();
+
+                        var M = p * q;
+                        var C = (p - 1)*(q - 1);
+                        var e = 0;
+                        for(var i = 10; i< C; i++){
+                            if(isprime(i))
+                                numbers.push(i);
+                        }
+
+                        for(var n = numbers.length - 1; n >= 0; n--){
+                            if(numbers[n] < C && C % numbers[n] >0){
+                                e = numbers[n];
+                                break;
+                            }
+                        }
+                        pr_keys[0] = M;
+                        pr_keys[1] = e;
+                        return pr_keys;
+                    }
+
+                    function generate_private_keys(p , q){
+                        var numbers = new Array();
+                        var pi_keys = new Array();
+
+                        var M = p * q;
+                        var C = (p - 1)*(q - 1);
+                        var e = 0;
+
+                        for(var i = 10; i< C; i++){
+                            if(isprime(i))
+                                numbers.push(i);
+                        }
+                        for(var n = numbers.length - 1; n >= 0; n--){
+                            if(numbers[n] < C && C % numbers[n] >0){
+                                e = numbers[n];
+                                break;
+                            }
+                        }
+                        var d = 0;
+                        for(var n = 2; n < C; n++){
+                            if((e * n) % C == 1){
+                                d = n;
+                                break;
+                            }
+                        }
+                        pi_keys[0] = M;
+                        pi_keys[1] = d;
+                        return pi_keys;
+                    }
+
+                    function encrypt(m, key) {
+                        var C = key[0];
+                        var x = key[1];
+                        var T = 1;
+                        while(x > 0){
+                            if(x % 2 == 0){
+                                m = (m * m) % C;
+                                x = x / 2;
+                            }
+                            else{
+                                T = (T * m) % C;
+                                x = x - 1;
+                            }
+                        }
+                        return T;
+                    }
+
+                    function largerthan2(seq) {
+                        var f = new Array();
+                        f = seq;
+                        f.sort();
+                        for(i = 0; i < f.length; i++){
+                            if(f[i + 1] - f[i] < 2)
+                                return false;
+                            else
+                                continue;
+                        }
+                        return true;
+                    }
+
+                    function sort(elements){
+                        for(var i=0;i<elements.length-1;i++){
+                            for(var j=0;j<elements.length-i-1;j++){
+                                if(elements[j]>elements[j+1]){
+                                    var swap=elements[j];
+                                    elements[j]=elements[j+1];
+                                    elements[j+1]=swap;
+                                }
+                            }
+                        }
+                    }
+
+                    function Compare(){
+
+                        var Alice_i = parseInt(document.getElementById("Alice").value)
+                        var Bob_j = parseInt(document.getElementById("Bob").value)
+
+                        if(document.getElementById("Alice").value.length == 0 || document.getElementById("Bob").value.length == 0){
+                            alert("Please input!");
+                            document.getElementById("index1").innerHTML= "<br> You should input something :D"
+                            return;
+                        }
+
+                        if(document.getElementById("Alice").value.length > 1 || document.getElementById("Bob").value.length > 1){
+                            alert("Invalid input!!");
+                            document.getElementById("index1").innerHTML= "<br> Their fortune should be an interger in 1-9."
+                            return;
+                        }
+
+                        if(Alice_i == Bob_j){
+                            alert("Please try again!!");
+                            document.getElementById("index1").innerHTML= "<br> Please try again!!"
+                            return;
+                        }
+
+                        document.getElementById("index1").innerHTML= "<br> Calculating..."
+
+                        var p = 0;
+                        var u = 1;
+                        var pub = new Array();
+                        var pri = new Array();
+
+                        while(true){
+                            var a = parseInt(Math.random()* 100 + 1000);
+                            var count = 0;
+                            var num = a;
+                            while(num > 1){
+                                num /= 10;
+                                count += 1;
+                            }
+                            var N = count;
+
+                            if(N % 2 == 0){
+                                if(N == 2){
+                                    pub = generate_public_keys(11, 17);
+                                    pri = generate_private_keys(11, 17);
+                                }
+                                if(N == 4){
+                                    pub = generate_public_keys(101, 199);
+                                    pri = generate_private_keys(101, 199);
+                                }
+                                if(N == 6){
+                                    pub = generate_public_keys(1013, 2039);
+                                    pri = generate_private_keys(1013, 2039);
+                                }
+                            }
+                            else{
+                                continue;
+                            }
+
+                            var b = encrypt(a, pub);
+                            document.getElementById("index2").innerHTML= "<br> Bob sent to Alice [Encrypted] : " + (b - Bob_j + 1)
+                            document.getElementById("index3").innerHTML= "<br> Alice is decrypting..."
+
+                            var Alice_y = new Array();
+                            var Alice_z = new Array();
+
+                            while(u <= 10){
+                                decrypt = encrypt;
+                                var c = decrypt(b - Bob_j + u, pri);
+                                Alice_y.push(c);
+                                u += 1;
+                            }
+                            u = 1;
+                            var lower = Math.pow(10, (N / 2 - 1));
+                            var upper = Math.pow(10, (N / 2)) - 1;
+                            var primes = new Array();
+                            for(var i = lower; i < upper; i++){
+                                if(isprime(i))
+                                    primes.push(i);
+                            }
+
+                            var k = 0;
+                            while(k < primes.length){
+                                var p = primes[k];
+                                for(var y = 0; y < Alice_y.length; y++){
+                                    var z = Alice_y[y] % p;
+                                    Alice_z.push(z);
+                                }
+                                //if largerthan2(Alice_z)
+                                var v = new Array();
+                                //v = Alice_z;
+                                for(var i = 0; i < Alice_z.length; i++){
+                                    v[i] = Alice_z[i];
+                                }
+                                var flag = 0;
+                                sort(v);
+                                for(i = 0; i < v.length; i++){
+                                    if(v[i + 1] - v[i] < 2)
+                                        flag = 1;
+                                    else
+                                        continue;
+                                }
+
+                                if(flag == 0)
+                                    break;
+                                else{
+                                    Alice_z.splice(0, Alice_z.length);
+                                    k += 1;
+                                }
+                            }
+                            if(k == primes.length)
+                                continue;
+                            else
+                                break;
+                        }
+
+                        for (var w = 0; w < Alice_z.length; w++){
+                            if(w > Alice_i - 1)
+                                Alice_z[w] += 1;
+                        }
+                        document.getElementById("index4").innerHTML= "<br> Alice sent to Bob: p= " + p + ", z= " + Alice_z
+                        var s = Alice_z[Bob_j - 1];
+                        var t = a % p;
+
+                        if(s == t){
+                            document.getElementById("index5").innerHTML= "<br> [Bob]: the j-th number in {Z} equals (x mod p)."
+                            document.getElementById("index6").innerHTML= "<br> Alice is richer!"
+                            alert("Alice is richer!");
+                        }
+                        else{
+                            document.getElementById("index5").innerHTML= "<br> [Bob]: the j-th number in {Z} does not equal (x mod p)."
+                            document.getElementById("index6").innerHTML= "<br> Bob is richer!"
+                            alert("Bob is richer!");
+                        }
+                        document.getElementById("index7").innerHTML= "<br> Now you know :) Thanks for your support!"
+                    }
+                </script>
+                <div style="text-align:center">
+                    <button type="button" style="text-align:center;width:170px;height:33px" onclick="Compare()"><font face="Lucida Grande" size="2">WHO IS RICHER??</font></button>
+                </div>
+                <div style="text-align:center">
+                    <font id ="index1" color="maroon" size="4" face="Georgia">  </font>
+                    <font id ="index2" color="maroon" size="4" face="Georgia">  </font>
+                    <font id ="index3" color="maroon" size="4" face="Georgia">  </font>
+                    <font id ="index4" color="maroon" size="4" face="Georgia">  </font>
+                    <font id ="index5" color="maroon" size="4" face="Georgia">  </font>
+                    <br/>
+                    <b><font id ="index6" color="crimson" size="6" face="Georgia">  </font></b><br/>
+                    <b><font id ="index7" color="midnightblue" size="4" face="Georgia">  </font></b>
+                </div>
+                </form>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <div id="footer" style="color:lightcyan; clear:both; text-align:center; font-size: 22px; font-family: times">
+                Copyright© CHEN Xinkai</div>
+        </div>
+    </body>
+</html>
